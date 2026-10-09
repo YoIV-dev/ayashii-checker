@@ -114,3 +114,9 @@ node test/run.js
 | [vendor/jszip.min.js](vendor/jszip.min.js) | ZIP展開ライブラリ [JSZip](https://stuk.github.io/jszip/)（MIT License） |
 
 ルールを追加・変更したら `node test/run.js` で確認してください。`index.html` から読み込むファイルにはキャッシュ対策のバージョン番号（`?v=2`）が付いているので、更新時は数字を上げてください。
+
+## ライセンス
+
+[MIT License](LICENSE) です。個人・商用を問わず、自由に使用・改変・再配布できます。
+
+同梱している [JSZip](https://stuk.github.io/jszip/) は、それ自身の MIT License に従います。
