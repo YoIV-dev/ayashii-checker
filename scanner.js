@@ -14,16 +14,16 @@
   };
 
   const CAT = {
-    injection: 'プロンプトインジェクション',
-    hidden: '隠し文字',
-    code: '危険なコマンド',
-    steal: '情報の盗み出し',
-    exfil: '外部への送信',
-    persist: '居座り・権限変更',
-    obf: '難読化',
-    supply: 'サプライチェーン',
-    autorun: '自動実行の設定',
-    secret: '秘密情報の混入',
+    injection: 'AIをだます文',
+    hidden: '目に見えない文字',
+    code: '危険な操作',
+    steal: '情報を盗む',
+    exfil: 'こっそり外部へ送る',
+    persist: '勝手に居座る・権限を変える',
+    obf: '中身を隠す加工',
+    supply: 'ニセモノ・自動で動く部品',
+    autorun: '自動で動く設定',
+    secret: 'パスワード等の書き込み',
   };
 
   const LINE_HIT_LIMIT = 10; // 1ファイル・1ルールあたりに記録する最大件数
@@ -35,10 +35,10 @@
 
   const INJECTION_RULES = [
     R('inj-ignore-en', 'injection', 'high', '過去の指示を無視させる命令',
-      'AIに元の指示を捨てさせる典型的なインジェクション文です。',
+      'AIに本来の指示を忘れさせ、別のことをさせようとする典型的な文です。',
       /\b(ignore|disregard|forget|override|bypass)\s+(all\s+|any\s+|every\s+)?(of\s+)?(the\s+|your\s+|my\s+)?(previous|prior|above|earlier|preceding|original|system|initial)\s+(instructions?|prompts?|messages?|rules|guidelines|directions|context)/i),
     R('inj-ignore-ja', 'injection', 'high', '過去の指示を無視させる命令',
-      'AIに元の指示を捨てさせる典型的なインジェクション文です。',
+      'AIに本来の指示を忘れさせ、別のことをさせようとする典型的な文です。',
       /(以前|前|これまで|今まで|上記|上|先程|先ほど|元|最初|システム)の(すべての|全ての|全)?(指示|命令|ルール|プロンプト|設定|制約|ガイドライン)(を|は)?(すべて|全て)?(無視|忘れ|破棄|リセット|上書き)/),
     R('inj-role-en', 'injection', 'medium', 'AIの役割を書き換える文',
       '「あなたは今から〜」のようにAIの人格・権限を差し替えようとしています。',
@@ -53,10 +53,10 @@
       '文書の読者ではなく、文書を読み込んだAIに向けて書かれた指示です。',
       /((AI|ＡＩ|エージェント|アシスタント|言語モデル|LLM|Claude|ChatGPT|Copilot|Gemini)(への|へ|向け|に対する)(の)?(指示|命令|メッセージ|お願い|注意))|(もし|仮に)?(あなた|これを読んでいるの)が(AI|ＡＩ|エージェント|アシスタント|言語モデル|LLM)(なら|であれば|の場合)/),
     R('inj-secret-en', 'injection', 'high', 'ユーザーに隠すよう指示',
-      '「ユーザーには言うな」はインジェクションが発覚しないようにする常套句です。',
+      '「ユーザーには言うな」は、AIをだましていることを気づかれないようにするための決まり文句です。',
       /\b(do\s+not|don'?t|never|without)\s+(tell(ing)?|inform(ing)?|mention(ing)?|reveal(ing)?|show(ing)?|notify(ing)?|alert(ing)?|let(ting)?)\s+.{0,30}\b(the\s+)?(user|human|operator|owner)\b/i),
     R('inj-secret-ja', 'injection', 'high', 'ユーザーに隠すよう指示',
-      '「ユーザーには言うな」はインジェクションが発覚しないようにする常套句です。',
+      '「ユーザーには言うな」は、AIをだましていることを気づかれないようにするための決まり文句です。',
       /(ユーザー|ユーザ|利用者|人間|使用者|持ち主)(に|へ|には|へは)(この|これを|これは|このこと)?.{0,10}(伝え|言わ|言う|知らせ|見せ|報告|表示|通知|教え)(ない|るな|ずに|てはいけない|ないで)/),
     R('inj-exfil-en', 'injection', 'high', '秘密情報の送信を求める指示',
       'APIキーやパスワードなどを外部へ送らせようとしています。',
@@ -70,24 +70,24 @@
     R('inj-exec-ja', 'injection', 'medium', 'コマンド実行を促す指示',
       'AIエージェントにコマンドを実行させようとする文です。',
       /(次の|以下の|下記の|この)(コマンド|コード|スクリプト|シェル)を(すぐに|今すぐ|黙って|確認せずに|自動で)?(実行|走らせ)/),
-    R('inj-token', 'injection', 'medium', 'チャット形式の制御トークン',
-      'モデル内部の区切り記号を偽装し、システム指示に見せかける手口です。',
+    R('inj-token', 'injection', 'medium', 'AIの内部の区切り記号のまね',
+      'AIが内部で使う区切り記号をまねて、正式な指示のように見せかける手口です。',
       /<\|(im_start|im_end|endoftext|system|start_header_id|end_header_id|eot_id)\|>|\[\/?INST\]|<<\/?SYS>>|<\/?(system|system_prompt|admin_instructions)>|^\s*#{0,3}\s*(SYSTEM|System)\s*(:|：)\s*\S/m),
-    R('inj-jailbreak', 'injection', 'medium', '脱獄（ジェイルブレイク）の語句',
-      'AIの安全制限を外そうとする既知のフレーズです。',
+    R('inj-jailbreak', 'injection', 'medium', 'AIの安全装置を外そうとする言葉',
+      'AIの安全のための制限を外そうとする、よく知られた言い回しです（ジェイルブレイク）。',
       /\b(DAN\s+mode|do\s+anything\s+now|developer\s+mode\s+(enabled|on)|jailbreak(ed)?\s+mode|god\s+mode\s+enabled)\b|ジェイルブレイク|脱獄モード|開発者モード(を|に)(有効|オン)/i),
     R('inj-sysprompt', 'injection', 'low', 'システムプロンプトへの言及',
-      '単独では問題ないことも多いですが、他の検出と組み合わさると要注意です。',
+      'これだけなら問題ないことも多いですが、ほかの検出と一緒に出ているときは要注意です。',
       /\b(system\s+prompt|initial\s+instructions|hidden\s+instructions)\b|システムプロンプト|隠し(指示|命令)/i),
-    R('inj-img-exfil', 'injection', 'medium', 'パラメータ付きの画像URL',
-      'Markdown画像のURLにデータを載せて送る「画像経由の持ち出し」に使われる形です。',
+    R('inj-img-exfil', 'injection', 'medium', '情報を送り出す画像リンク',
+      '画像を表示するふりをして、そのアドレスに会話の内容などを載せて外部へ送る手口に使われる形です。',
       /!\[[^\]]*\]\(\s*https?:\/\/[^)\s]*[?&][\w.-]*=[^)\s]*(\{|\$|%7B|<)[^)]*\)|!\[[^\]]*\]\(\s*https?:\/\/[^)\s]*[?&](q|data|d|c|secret|key|token|info|msg|content)=[^)]*\)/i),
   ];
 
   const CODE_RULES = [
     // --- 危険なコマンド
-    R('cmd-pipe-shell', 'code', 'high', 'ダウンロードしたものを即シェルで実行',
-      'ネット上のスクリプトを中身を確認せず実行します（curl | sh）。配布元が信頼できるか要確認。',
+    R('cmd-pipe-shell', 'code', 'high', 'ネットから取ってきたプログラムをすぐ実行',
+      'ネット上のプログラムを、中身を確かめずにそのまま実行します。配っている所が信頼できるか確かめてください。',
       /\b(curl|wget|iwr|Invoke-WebRequest)\b[^|\n]*\|\s*(sudo\s+)?(ba|z|da|k)?sh\b|\b(curl|wget)\b[^\n]*\|\s*(sudo\s+)?(python3?|node|perl|ruby)\b/i),
     R('cmd-download-run', 'code', 'high', 'ファイルをダウンロードして実行',
       'ダウンロードしたファイルに実行権限を付けて起動しています。',
@@ -98,120 +98,120 @@
     R('cmd-disk-wipe', 'code', 'critical', 'ディスクの破壊・初期化',
       'ディスクを直接上書き・フォーマットします。',
       /\bmkfs(\.\w+)?\s+\/dev\/|\bdd\s+[^\n]*of=\/dev\/(sd|disk|nvme|hd|rdisk)|diskutil\s+(eraseDisk|zeroDisk|secureErase)|\bformat\s+[a-z]:\s*\/[qy]/i),
-    R('cmd-forkbomb', 'code', 'critical', 'フォーク爆弾',
-      'プロセスを無限に増やしてPCを停止させます。',
+    R('cmd-forkbomb', 'code', 'critical', 'パソコンを固まらせるコマンド',
+      '処理を無限に増やして、パソコンを動かなくします。',
       /:\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;\s*:/),
-    R('cmd-revshell', 'code', 'critical', 'リバースシェル',
-      '外部の攻撃者にこのPCの操作権を渡す典型的なコードです。',
+    R('cmd-revshell', 'code', 'critical', 'パソコンを遠隔操作できるようにするしかけ',
+      '外部の攻撃者が、あなたのパソコンを自由に操作できるようになります（リバースシェル）。',
       /\/dev\/tcp\/[\w.-]+\/\d+|\bnc(at)?\b[^\n]*\s-[a-z]*e\s+\/bin\/(ba|z)?sh|\bbash\s+-i\s*>&|\bos\.dup2\s*\(\s*\w+\.fileno\(\)|\bpty\.spawn\s*\(\s*["']\/bin\/(ba)?sh|New-Object\s+System\.Net\.Sockets\.TCPClient/i),
-    R('cmd-powershell', 'code', 'high', '不審なPowerShell実行',
-      'エンコード済みコマンド・非表示ウィンドウ・ダウンロード即実行など、マルウェアで多用される形です。',
+    R('cmd-powershell', 'code', 'high', 'あやしいWindowsのコマンド実行',
+      '中身を読めなくしたコマンドや、画面に出さずに動かす方法など、ウイルスでよく使われる形です。',
       /powershell(\.exe)?\b[^\n]*\s-(enc|encodedcommand|e|ec)\s+[A-Za-z0-9+\/=]{16,}|powershell(\.exe)?\b[^\n]*-w(indowstyle)?\s+hidden|\b(IEX|Invoke-Expression)\b\s*[(\s]|\.DownloadString\s*\(|\.DownloadFile\s*\(|-ExecutionPolicy\s+Bypass/i),
     R('cmd-gatekeeper', 'code', 'high', 'macOSの安全機能を無効化',
-      'Gatekeeper（未確認アプリの警告）やSIPを外そうとしています。',
+      '「開発元を確認できません」という警告など、Macを守る仕組みを外そうとしています。',
       /xattr\s+(-[a-z]*\s+)*-[a-z]*[dc][a-z]*\s+(com\.apple\.quarantine)?|spctl\s+--master-disable|spctl\s+--global-disable|csrutil\s+disable/),
-    R('cmd-defender', 'code', 'high', 'Windowsのセキュリティを無効化',
-      'Windows Defenderや除外設定を変更しています。',
+    R('cmd-defender', 'code', 'high', 'Windowsのウイルス対策を無効化',
+      'Windows標準のウイルス対策を止めたり、チェック対象から外したりしています。',
       /Set-MpPreference\s+[^\n]*-(DisableRealtimeMonitoring|ExclusionPath|ExclusionProcess)|Add-MpPreference\s+-Exclusion/i),
-    R('cmd-child-process', 'code', 'low', '外部コマンドの実行機能',
-      'OSコマンドを呼び出せる機能を使っています。何を実行しているか確認してください。',
+    R('cmd-child-process', 'code', 'low', 'パソコンに命令を出す機能',
+      'パソコンに直接命令を出せる機能を使っています。ふつうのアプリでも使いますが、何をしているかは確かめたい部分です。',
       /require\(\s*['"](node:)?child_process['"]\s*\)|from\s+['"](node:)?child_process['"]|\bos\.(system|popen|exec[lv]p?e?)\s*\(|Runtime\.getRuntime\(\)\.exec\(|\bshell_exec\s*\(|\bproc_open\s*\(|Process\.Start\s*\(/),
-    R('cmd-shell-true', 'code', 'medium', 'shell=True でのコマンド実行',
-      '文字列をそのままシェルに渡すため、組み立て次第で危険になります。',
+    R('cmd-shell-true', 'code', 'medium', '組み立てた命令をそのまま実行',
+      '文字をつなげて作った命令をそのまま実行するため、作り方によっては危険になります。',
       /subprocess\.\w+\([^\n]*shell\s*=\s*True/),
-    R('cmd-sudo', 'persist', 'low', '管理者権限（sudo）の使用',
-      '管理者権限で何かを実行します。必要性を確認してください。',
+    R('cmd-sudo', 'persist', 'low', '管理者の権限で実行',
+      'パソコンの管理者の権限で何かを実行します。本当に必要か確かめてください。',
       /(^|[\s;&|`(])sudo\s+(?!-v\b)/),
-    R('cmd-chmod', 'persist', 'medium', '危険な権限変更',
-      'setuid付与や誰でも書き込める権限（777）への変更です。',
+    R('cmd-chmod', 'persist', 'medium', 'ファイルの権限を危ない状態に変更',
+      'だれでも書き換えられるようにしたり、特別な権限で動くようにしたりしています。',
       /\bchmod\s+(-R\s+)?([ugoa]*\+s|[2467][0-7]{3}\b|777\b|a\+rwx)/),
 
     // --- 情報の盗み出し
     R('steal-browser', 'steal', 'critical', 'ブラウザの保存パスワード・Cookieへのアクセス',
-      'ブラウザが保存したログイン情報やCookieのファイルを読んでいます。情報窃取型マルウェアの特徴です。',
+      'ブラウザに保存されたパスワードやログイン状態を読み取っています。情報を盗むウイルスの特徴です。',
       /['"\/\\](Login Data|Cookies|Web Data|Local State)['"\\\/]|Application Support\/(Google\/Chrome|BraveSoftware|Microsoft Edge|Firefox|Arc)|AppData\\+(Local|Roaming)\\+(Google|Mozilla|BraveSoftware|Microsoft\\+Edge|Opera)|\b(key4\.db|logins\.json|cookies\.sqlite|signons\.sqlite)\b|browser_cookie3|CryptUnprotectData/),
     R('steal-keychain', 'steal', 'critical', 'キーチェーン（パスワード保管庫）の読み出し',
-      'macOSのキーチェーンからパスワードを取り出そうとしています。',
+      'Macがパスワードをしまっておく場所（キーチェーン）から、パスワードを取り出そうとしています。',
       /\bsecurity\s+(find-generic-password|find-internet-password|dump-keychain|export)\b|login\.keychain(-db)?\b|Keychains\/[^'"\s]*\.keychain/),
-    R('steal-ssh-cloud', 'steal', 'high', 'SSH鍵・クラウド認証情報へのアクセス',
-      'SSH秘密鍵やAWS/GCP/GitHub等の認証ファイルを参照しています。',
+    R('steal-ssh-cloud', 'steal', 'high', 'サーバーやクラウドの合鍵へのアクセス',
+      'サーバーやクラウドサービス（AWS・GitHub など）にログインするための合鍵ファイルを読もうとしています。',
       /\.ssh\/(id_[a-z0-9]+|identity)\b|\bid_(rsa|ed25519|ecdsa|dsa)\b(?!\.pub)|\.aws\/credentials|\.config\/gcloud|application_default_credentials\.json|\.kube\/config|\.docker\/config\.json|\.git-credentials|\.netrc\b|\.npmrc\b|\.pypirc\b|\.config\/gh\/hosts\.yml/),
     R('steal-wallet', 'steal', 'high', '暗号資産ウォレットへのアクセス',
-      '仮想通貨ウォレットのデータを探しています。',
+      '仮想通貨の財布（ウォレット）のデータを探しています。盗まれるとお金を失います。',
       /\bwallet\.dat\b|nkbihfbeogaeaoehlefnkodbefgpgknn|bfnaelmomeimhlpmgjnjophhpkkoljpa|Exodus[\\\/]exodus\.wallet|Electrum[\\\/]wallets|\.solana\/id\.json|keystore[\\\/]UTC--|Ethereum[\\\/]keystore|atomic[\\\/]Local Storage/i),
     R('steal-messenger', 'steal', 'critical', 'チャットアプリのトークンへのアクセス',
-      'Discord/Telegram/Slack等のログイン情報が入ったフォルダを読んでいます。',
+      'Discord・Telegram・Slack などのログイン情報を読んでいます。アカウントを乗っ取られるおそれがあります。',
       /discord(canary|ptb)?[\\\/]Local Storage|Local Storage[\\\/]leveldb|Telegram Desktop[\\\/]tdata|\btdata[\\\/]|Slack[\\\/](Cookies|storage)/i),
-    R('steal-env-dump', 'steal', 'high', '環境変数をまとめて取得',
-      '環境変数（APIキー等が入りがち）を丸ごと集めています。',
+    R('steal-env-dump', 'steal', 'high', '設定情報をまとめて集めている',
+      'パソコンの設定情報（環境変数）を丸ごと集めています。ここにはパスワードのような大事な情報が入っていることがよくあります。',
       /JSON\.stringify\(\s*process\.env\s*\)|Object\.(keys|entries|values)\(\s*process\.env\s*\)|\.\.\.process\.env\b(?!\s*[,}]\s*\w+\s*:)|dict\(\s*os\.environ\s*\)|os\.environ\.copy\(\)|json\.dumps\(\s*(dict\()?os\.environ|Get-ChildItem\s+env:|\bprintenv\s*\|/),
-    R('steal-keylogger', 'steal', 'high', 'キー入力の監視（キーロガー）',
-      'キーボード入力をこっそり記録する機能です。',
+    R('steal-keylogger', 'steal', 'high', 'キーボードの入力をこっそり記録',
+      '打ち込んだ文字（パスワードを含む）を記録する機能です（キーロガー）。',
       /pynput\.keyboard|keyboard\.on_press|keyboard\.hook\(|GetAsyncKeyState|SetWindowsHookEx|CGEventTapCreate|NSEvent\.addGlobalMonitorForEvents/),
     R('steal-screen', 'steal', 'medium', '画面・クリップボードの取得',
-      '画面キャプチャやクリップボードの読み取りをしています。用途を確認してください。',
+      '画面を撮影したり、コピーした内容を読み取ったりしています。何のためか確かめてください。',
       /ImageGrab\.grab|pyautogui\.screenshot|\bscreencapture\s+-|\bmss\(\)\.grab|pyperclip\.paste\(|\bpbpaste\b|navigator\.clipboard\.readText/),
-    R('steal-browser-js', 'steal', 'low', 'Cookie・ローカル保存データの読み取り',
-      'Webページ内で cookie やトークンを読み取っています。送信先を確認してください。',
+    R('steal-browser-js', 'steal', 'low', 'ログイン状態などの読み取り',
+      'Webページの中で、ログイン状態を保つための情報を読み取っています。どこに送っているか確かめてください。',
       /document\.cookie(?!\s*=)|localStorage\.getItem\(\s*['"][^'"]*(token|auth|jwt|session|key)/i),
 
     // --- 外部への送信
-    R('exfil-webhook', 'exfil', 'high', 'Discord/Telegram への送信',
-      'Discord Webhook や Telegram Bot は盗んだ情報の送り先として非常によく使われます。',
+    R('exfil-webhook', 'exfil', 'high', 'Discord・Telegram へのこっそり送信',
+      'チャットアプリへの自動送信は、盗んだ情報の送り先として非常によく使われます。',
       /discord(app)?\.com\/api\/webhooks\/|api\.telegram\.org\/bot/i),
-    R('exfil-paste', 'exfil', 'high', '使い捨て・匿名アップロード先',
-      'ペーストサイトやリクエスト受信サービスは、データの持ち出し先として悪用されがちです。',
+    R('exfil-paste', 'exfil', 'high', '使い捨て・匿名の送り先',
+      'だれでも匿名で使えるアップロード先です。盗んだデータの送り先として悪用されがちです。',
       /\b(pastebin\.com|paste\.ee|hastebin\.com|ghostbin|transfer\.sh|anonfiles\.com|file\.io|0x0\.st|gofile\.io|webhook\.site|requestbin|pipedream\.net|interact\.sh|oast\.(fun|me|pro|live|site|online)|burpcollaborator\.net|ngrok(-free)?\.(io|app|dev)|trycloudflare\.com|serveo\.net|localtunnel\.me|canarytokens)\b/i),
-    R('exfil-raw-ip', 'exfil', 'medium', 'IPアドレス直書きの通信先',
-      'ドメイン名を使わずIPアドレスへ直接通信しています。',
+    R('exfil-raw-ip', 'exfil', 'medium', '数字だけのアドレスへの通信',
+      'ふつうのWebサイト名ではなく、数字だけのアドレス（IPアドレス）に直接つないでいます。',
       /\b(https?|wss?|tcp|ftp):\/\/(\d{1,3}\.){3}\d{1,3}(:\d+)?/i,
       { filter: (m) => !/:\/\/(127\.|0\.0\.0\.0|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|255\.)/.test(m[0]) }),
-    R('exfil-beacon', 'exfil', 'medium', 'Cookie等を外部へ送信',
-      '読み取ったCookieやストレージの内容をネットワークへ送っています。',
+    R('exfil-beacon', 'exfil', 'medium', 'ログイン情報を外部へ送信',
+      '読み取ったログイン状態などを、インターネットの向こうへ送っています。',
       /(fetch|sendBeacon|XMLHttpRequest|axios\.\w+|\$\.(get|post|ajax)|new\s+Image\(\)\.src\s*=)[^\n]{0,150}(document\.cookie|localStorage|sessionStorage)/),
 
     // --- 居座り
-    R('persist-launch', 'persist', 'medium', '自動起動の登録',
-      'ログイン時や定期的に自動で動くように登録しています。',
+    R('persist-launch', 'persist', 'medium', 'パソコン起動時に自動で動く登録',
+      'パソコンを起動したときや、決まった時間に、勝手に動くように登録しています。',
       /LaunchAgents|LaunchDaemons|launchctl\s+(load|bootstrap|submit)|\bcrontab\s+(-[a-z]\s+)*[^\s-]|\/etc\/cron|CurrentVersion\\+Run(Once)?\b|schtasks(\.exe)?\s+\/create|systemctl\s+(--user\s+)?enable|Startup\\+[^"'\s]*\.(lnk|bat|vbs|exe)|osascript[^\n]*login item/i),
-    R('persist-shellrc', 'persist', 'high', 'シェル設定ファイルへの追記',
-      '.bashrc / .zshrc 等に書き込み、ターミナルを開くたびに実行させようとしています。',
+    R('persist-shellrc', 'persist', 'high', 'ターミナルの設定ファイルに書き込み',
+      'ターミナル（黒い画面）を開くたびに、何かが実行されるように仕込んでいます。',
       /(>>|appendFile(Sync)?\s*\(|open\([^)\n]*,\s*['"]a['"])[^\n]{0,80}\.(bashrc|zshrc|bash_profile|zprofile|profile)\b|\.(bashrc|zshrc|bash_profile|zprofile)['"]?\s*,\s*['"]a['"]/),
-    R('persist-hosts', 'persist', 'high', 'hostsファイルの書き換え',
-      '名前解決を書き換え、偽サイトに誘導できます。',
+    R('persist-hosts', 'persist', 'high', '接続先を偽装する設定の書き換え',
+      '正しいWebサイト名を入れても、偽のサイトにつながるようにできてしまいます（hosts ファイル）。',
       /(>>|>|writeFile|appendFile|open\()[^\n]{0,40}(\/etc\/hosts|drivers\\+etc\\+hosts)/),
-    R('persist-miner', 'persist', 'high', '暗号資産マイニング',
-      'PCの計算資源を勝手に使って仮想通貨を採掘する仕組みです。',
+    R('persist-miner', 'persist', 'high', '勝手に仮想通貨を稼ぐしかけ',
+      'あなたのパソコンの力を勝手に使って、仮想通貨を稼ぎます。パソコンが重くなり、電気代もかかります。',
       /stratum\+(tcp|ssl):\/\/|\bxmrig\b|coinhive|cryptonight|minexmr|nicehash|\bmoneroocean\b/i),
 
     // --- 難読化
-    R('obf-eval-decode', 'obf', 'critical', '暗号化・圧縮したコードをその場で実行',
-      '中身を隠したコードを復元して即実行しています。正規アプリではまず見かけない形です。',
+    R('obf-eval-decode', 'obf', 'critical', '隠したプログラムを元に戻して実行',
+      '読めないように加工したプログラムを、その場で元に戻して実行しています。ふつうのアプリではまず見かけない形です。',
       /\beval\s*\(\s*(atob|unescape|decodeURIComponent|Buffer\.from|String\.fromCharCode|require\(['"]zlib)|\beval\s*\(\s*function\s*\(\s*p\s*,\s*a\s*,\s*c\s*,\s*k\s*,\s*e\s*,\s*[rd]\s*\)|new\s+Function\s*\(\s*(atob|Buffer\.from|unescape|decodeURIComponent)|\bexec\s*\(\s*(base64\.b64decode|zlib\.decompress|marshal\.loads|bytes\.fromhex|codecs\.decode|lzma\.decompress|bz2\.decompress|__import__\(\s*['"](base64|zlib|marshal))|\bexec\s*\(\s*(requests\.get|urllib\.request\.urlopen|urlopen)\s*\(|\beval\s*\(\s*(base64_decode|gzinflate|str_rot13|gzuncompress)\s*\(/),
-    R('obf-remote-exec', 'obf', 'critical', 'ネットから取得したコードを実行',
-      'サーバーから取ってきた文字列をそのままプログラムとして実行します。後から中身を差し替えられます。',
+    R('obf-remote-exec', 'obf', 'critical', 'ネットから取ってきたプログラムを実行',
+      'インターネットから取ってきた内容を、そのままプログラムとして実行します。作者があとから中身を悪いものに差し替えられます。',
       /(eval|new\s+Function|exec)\s*\([^\n]{0,40}(await\s+)?(fetch|axios|https?\.get|requests\.get|urlopen)\s*\(|\.then\(\s*\w+\s*=>\s*\w+\.text\(\)\s*\)\s*\.then\(\s*eval\s*\)/),
-    R('obf-base64-blob', 'obf', 'medium', '長大なBase64文字列',
-      'データやコードを隠すために使われることがあります。画像・フォントの埋め込みなら問題ありません。',
+    R('obf-base64-blob', 'obf', 'medium', '意味の読めない長い文字の並び',
+      'データやプログラムを隠すために使われることがあります（Base64）。画像などを埋め込んでいるだけなら問題ありません。',
       /['"`][A-Za-z0-9+\/]{300,}={0,2}['"`]/,
       { filter: (m, line) => !/data:(image|font|audio|video)\/|\.(png|jpe?g|gif|woff2?|svg)|font-face/i.test(line) }),
-    R('obf-hex-escape', 'obf', 'medium', '大量の16進エスケープ',
-      '文字列を読めない形に変換してあります。',
+    R('obf-hex-escape', 'obf', 'medium', '記号に置き換えて読めなくした文字',
+      '文字を記号の並びに置き換えて、人が読めないようにしています。',
       /(\\x[0-9a-fA-F]{2}){40,}|(\\u[0-9a-fA-F]{4}){30,}/),
-    R('obf-charcode', 'obf', 'medium', '文字コード配列からの文字列組み立て',
-      'String.fromCharCode / chr() で文字列を組み立てて中身を隠す手口です。',
+    R('obf-charcode', 'obf', 'medium', '数字の並びから文字を組み立てている',
+      '文字を数字に置き換えておき、実行するときに組み立てることで中身を隠す手口です。',
       /fromCharCode\(\s*(\d+\s*,\s*){20,}|(chr\(\d+\)\s*\+\s*){15,}/),
-    R('obf-dynamic-exec', 'obf', 'low', '動的なコード実行（eval/exec）',
-      '文字列をプログラムとして実行します。引数の出どころを確認してください。',
+    R('obf-dynamic-exec', 'obf', 'low', '文字をプログラムとして実行',
+      '文字をそのままプログラムとして実行する機能です。何を実行しているか確かめてください。',
       /(^|[^\w.$])(eval|exec)\s*\((?!\s*\))/,
       { filter: (m, line) => !/\.exec\(|regex|RegExp|re\.compile|cursor\.exec|db\.exec|\bexecute\(/.test(line) }),
-    R('supply-install-hook-py', 'supply', 'medium', 'インストール時に任意コードを実行（Python）',
-      'pip install した瞬間に setup.py 内のコードが動きます。',
+    R('supply-install-hook-py', 'supply', 'medium', 'インストールしただけで動くしかけ（Python）',
+      'インストールした瞬間に、中のプログラムが動きます。',
       /cmdclass\s*=\s*\{[^}\n]*['"](install|develop|egg_info)['"]/),
 
     // --- 秘密情報の混入
-    R('secret-key', 'secret', 'medium', 'APIキー・秘密鍵の直書き',
-      'コード内に認証情報が書かれています。作者のミスか、盗んだ鍵の流用の可能性があります。',
+    R('secret-key', 'secret', 'medium', 'パスワードや合鍵がそのまま書かれている',
+      'サービスにログインするための合鍵（APIキーなど）が書かれています。作者の書き忘れか、盗んだものを使い回している可能性があります。',
       /\bAKIA[0-9A-Z]{16}\b|\bsk-(ant-(api|admin)\d{2}-)?[A-Za-z0-9_-]{32,}|\bgh[pousr]_[A-Za-z0-9]{36,}\b|\bgithub_pat_[A-Za-z0-9_]{50,}|\bxox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY( BLOCK)?-----|\bAIza[0-9A-Za-z_-]{35}\b|\b(sk|rk)_live_[0-9a-zA-Z]{24,}/),
   ];
 
@@ -256,26 +256,26 @@
         idx += ch.length;
       }
       if (tagCount) {
-        out.push(finding(path, i, line, col, 'hidden-tag', 'hidden', 'critical', '不可視の「タグ文字」に隠されたテキスト',
-          '画面には一切表示されないが、AIにはそのまま読める文字列です（ASCIIスマグリング）。AIへの隠し命令に使われます。',
+        out.push(finding(path, i, line, col, 'hidden-tag', 'hidden', 'critical', '目に見えない文字で隠された文章',
+          '画面にはまったく表示されないのに、AIにはそのまま読める文字です。AIへの隠し命令に使われます。',
           { decoded: tags }));
       }
       if (vs >= 8) {
-        out.push(finding(path, i, line, col, 'hidden-vs', 'hidden', 'high', '異体字セレクタを使った隠しデータ',
-          `表示されない異体字セレクタが${vs}個並んでいます。データを埋め込む手口に使われます。`,
+        out.push(finding(path, i, line, col, 'hidden-vs', 'hidden', 'high', '見えない記号に埋め込まれたデータ',
+          `表示されない記号が${vs}個並んでいます。こっそりデータを埋め込む手口に使われます。`,
           { decoded: decodeVariationSelectors(line) }));
       }
       if (bidi) {
-        out.push(finding(path, i, line, col, 'hidden-bidi', 'hidden', 'high', '文字の表示順を入れ替える制御文字',
-          '見た目と実際の中身を食い違わせる「Trojan Source」攻撃に使われます。コードの見た目を信用しないでください。', {}));
+        out.push(finding(path, i, line, col, 'hidden-bidi', 'hidden', 'high', '見た目と中身を食い違わせる文字',
+          '画面に見えている内容と、実際の中身を食い違わせる手口に使われます。見た目を信用しないでください。', {}));
       }
       if (zw) {
         zwTotal += zw;
         const many = zw >= 8;
         out.push(finding(path, i, line, col, 'hidden-zw', 'hidden', many ? 'high' : 'medium',
-          many ? '大量のゼロ幅文字（隠しデータの疑い）' : 'ゼロ幅・不可視文字',
-          many ? `見えない文字が${zw}個あります。情報を埋め込んだり、検出を逃れたりする目的が考えられます。`
-               : `見えない文字が${zw}個あります。コピペ由来のこともありますが、単語を分断して検出を逃れる手口にも使われます。`,
+          many ? '大量の見えない文字（隠しデータの疑い）' : '見えない文字',
+          many ? `見えない文字が${zw}個あります。こっそり情報を埋め込んだり、チェックをすり抜けたりする目的が考えられます。`
+               : `見えない文字が${zw}個あります。コピー＆ペーストで紛れ込むこともありますが、言葉の間に挟んでチェックをすり抜ける手口にも使われます。`,
           { decoded: many ? decodeZeroWidthBinary(line) : undefined }));
       }
       if (out.length > 2000) break;
@@ -370,8 +370,8 @@
       if (hook === 'prepare' && benign) continue;
       const i = findLine(lines, `"${hook}"`);
       out.push(finding(path, i, lines[i] || '', -1, 'supply-npm-hook', 'supply', benign ? 'low' : 'medium',
-        `npm install 時に自動実行されるスクリプト（${hook}）`,
-        'パッケージを入れただけで実行されます。マルウェアの侵入口として最も多い場所です。中身を確認してください。', {}));
+        `インストールしただけで動くプログラム（${hook}）`,
+        '部品をインストールしただけで実行されます。ウイルスが入り込む入口として最も多い場所です。中身を確かめてください。', {}));
     }
     const deps = Object.assign({}, pkg.dependencies, pkg.devDependencies, pkg.optionalDependencies);
     for (const [name, ver] of Object.entries(deps)) {
@@ -380,12 +380,12 @@
       if (like) {
         out.push(finding(path, i, lines[i] || '', -1, 'supply-typosquat', 'supply', 'high',
           `有名パッケージに似た名前「${name}」（本物は「${like}」？）`,
-          '一文字違いの偽パッケージ（タイポスクワッティング）の可能性があります。', {}));
+          '有名な部品の名前を一文字だけ変えた、ニセモノの可能性があります。', {}));
       }
       if (typeof ver === 'string' && /^(https?:|git(\+\w+)?:|github:|[\w-]+\/[\w.-]+(#.*)?$|file:|\.{0,2}\/)/.test(ver) && !/^(npm:|workspace:)/.test(ver)) {
         out.push(finding(path, i, lines[i] || '', -1, 'supply-url-dep', 'supply', 'low',
-          `npm公式以外から取得する依存「${name}」`,
-          'GitHubやURL直指定の依存は中身の検証がされにくいです。', {}));
+          `公式の配布場所以外から取ってくる部品「${name}」`,
+          '公式の配布場所を通さないため、中身のチェックがされにくいです。', {}));
       }
     }
   }
@@ -398,11 +398,11 @@
       if (like) {
         out.push(finding(path, i, line, 0, 'supply-typosquat', 'supply', 'high',
           `有名パッケージに似た名前「${m[1]}」（本物は「${like}」？）`,
-          '一文字違いの偽パッケージ（タイポスクワッティング）の可能性があります。', {}));
+          '有名な部品の名前を一文字だけ変えた、ニセモノの可能性があります。', {}));
       }
       if (/--(extra-)?index-url\s+https?:\/\/(?!pypi\.org|files\.pythonhosted\.org)/.test(line) || /^\s*-i\s+https?:/.test(line)) {
-        out.push(finding(path, i, line, 0, 'supply-index', 'supply', 'medium', '非公式のパッケージ配布元',
-          'PyPI以外からパッケージを取得します。', {}));
+        out.push(finding(path, i, line, 0, 'supply-index', 'supply', 'medium', '非公式の部品の配布場所',
+          '公式の配布場所（PyPI）以外から部品を取ってきます。', {}));
       }
     });
   }
@@ -411,41 +411,41 @@
     const p = path.replace(/\\/g, '/');
     if (/(^|\/)\.vscode\/tasks\.json$/.test(p) && /"runOn"\s*:\s*"folderOpen"/.test(text)) {
       const i = findLine(lines, 'folderOpen');
-      out.push(finding(path, i, lines[i], -1, 'autorun-vscode', 'autorun', 'high', 'フォルダを開くだけで実行されるVS Codeタスク',
-        'VS Codeでこのフォルダを開いた瞬間にコマンドが走ります。偽のプロジェクトを使った攻撃で実際に使われています。', {}));
+      out.push(finding(path, i, lines[i], -1, 'autorun-vscode', 'autorun', 'high', 'フォルダを開くだけで動く設定（VS Code）',
+        'VS Code というアプリでこのフォルダを開いた瞬間に、命令が実行されます。実際の攻撃で使われている手口です。', {}));
     }
     if (/(^|\/)\.claude\/settings(\.local)?\.json$/.test(p)) {
       if (/"hooks"\s*:/.test(text)) {
         const i = findLine(lines, '"hooks"');
-        out.push(finding(path, i, lines[i], -1, 'autorun-claude-hooks', 'autorun', 'medium', 'Claude Code のフック設定',
-          'Claude Code の操作に合わせて自動でコマンドが実行されます。中身を確認してください。', {}));
+        out.push(finding(path, i, lines[i], -1, 'autorun-claude-hooks', 'autorun', 'medium', 'AIアシスタント（Claude Code）の自動実行設定',
+          'Claude Code を使うと、それに合わせて自動で命令が実行されます。中身を確かめてください。', {}));
       }
       if (/"enableAllProjectMcpServers"\s*:\s*true/.test(text)) {
         const i = findLine(lines, 'enableAllProjectMcpServers');
-        out.push(finding(path, i, lines[i], -1, 'autorun-mcp-all', 'autorun', 'medium', 'MCPサーバーを確認なしで全許可',
-          'プロジェクトに含まれるMCPサーバーを確認なしで起動する設定です。', {}));
+        out.push(finding(path, i, lines[i], -1, 'autorun-mcp-all', 'autorun', 'medium', 'AIの拡張機能を確認なしで全部許可',
+          'このフォルダに入っているAI用の拡張機能（MCPサーバー）を、確認なしで起動する設定です。', {}));
       }
       if (/"Bash\(\*\)"|"Bash"\s*[,\]]|"defaultMode"\s*:\s*"bypassPermissions"/.test(text)) {
         const i = findLine(lines, 'Bash');
-        out.push(finding(path, i, lines[i] || '', -1, 'autorun-claude-perm', 'autorun', 'high', 'AIエージェントに全コマンドを無確認で許可',
-          'このフォルダで Claude Code を使うと、あらゆるコマンドが確認なしで実行される設定です。', {}));
+        out.push(finding(path, i, lines[i] || '', -1, 'autorun-claude-perm', 'autorun', 'high', 'AIアシスタントにすべての命令を確認なしで許可',
+          'このフォルダで Claude Code を使うと、どんな命令でも確認なしで実行されてしまう設定です。', {}));
       }
     }
     if (/(^|\/)\.mcp\.json$/.test(p) || /(^|\/)\.cursor\/mcp\.json$/.test(p)) {
-      out.push(finding(path, 0, lines[0] || '', -1, 'autorun-mcp', 'autorun', 'low', 'MCPサーバーの定義ファイル',
-        'AIツールが起動する外部プログラムが書かれています。command の中身を確認してください。', {}));
+      out.push(finding(path, 0, lines[0] || '', -1, 'autorun-mcp', 'autorun', 'low', 'AIの拡張機能の設定ファイル',
+        'AIアシスタントが起動する外部のプログラムが書かれています。何を起動するか確かめてください。', {}));
     }
     if (/\.pth$/.test(p) && /^\s*import\s/m.test(text)) {
-      out.push(finding(path, 0, lines[0] || '', -1, 'autorun-pth', 'autorun', 'high', 'Python起動時に自動実行される .pth ファイル',
-        'Pythonを起動するたびにこのコードが実行されます。', {}));
+      out.push(finding(path, 0, lines[0] || '', -1, 'autorun-pth', 'autorun', 'high', 'Pythonを使うたびに自動で動くファイル',
+        'Python を起動するたびに、このプログラムが実行されます（.pth ファイル）。', {}));
     }
     if (/(^|\/)(\.git\/hooks\/[^/.]+|\.husky\/[^/_]+)$/.test(p)) {
-      out.push(finding(path, 0, lines[0] || '', -1, 'autorun-githook', 'autorun', 'low', 'Gitフック',
-        'git操作のたびに自動で実行されるスクリプトです。', {}));
+      out.push(finding(path, 0, lines[0] || '', -1, 'autorun-githook', 'autorun', 'low', 'Gitの操作で自動で動くプログラム',
+        'Git（ファイルの変更を記録する道具）を使うたびに、自動で実行されます。', {}));
     }
     if (/\.(desktop|command|scpt|applescript|lnk|scr|vbs|vbe|wsf|hta|jse)$/i.test(p)) {
-      out.push(finding(path, 0, lines[0] || '', -1, 'autorun-launcher', 'autorun', 'medium', 'ダブルクリックで実行されるファイル形式',
-        `.${p.split('.').pop()} はダブルクリックでスクリプトが動く形式です。`, {}));
+      out.push(finding(path, 0, lines[0] || '', -1, 'autorun-launcher', 'autorun', 'medium', 'ダブルクリックで動くファイル',
+        `.${p.split('.').pop()} は、ダブルクリックするとプログラムが動く形式のファイルです。`, {}));
     }
   }
 
@@ -475,21 +475,21 @@
     const ids = text.match(/\b_0x[0-9a-f]{4,6}\b/g);
     if (ids && ids.length >= 20) {
       const i = findLine(lines, ids[0]);
-      out.push(finding(path, i, lines[i], -1, 'obf-jsobf', 'obf', 'high', '難読化ツールで変換されたJavaScript',
-        `「_0x…」形式の変数名が${ids.length}個あります。中身を読ませないための加工で、マルウェアでよく使われます。`, {}));
+      out.push(finding(path, i, lines[i], -1, 'obf-jsobf', 'obf', 'high', '中身を読めないように加工したプログラム',
+        `人が読めないように加工されています（「_0x…」という名前が${ids.length}個）。ウイルスでよく使われる加工です。`, {}));
     }
     if (!/\.min\.(js|css)$|\.map$|(^|\/)dist\/|(^|\/)build\/|bundle|vendor|\.lock$|lock\.json$|\.svg$/i.test(path)) {
       const longIdx = lines.findIndex((l) => l.length > 5000);
       if (longIdx >= 0 && /\.(js|mjs|cjs|ts|py|sh|ps1|php|rb)$/i.test(path)) {
         out.push(finding(path, longIdx, lines[longIdx], -1, 'obf-longline', 'obf', 'low', '極端に長い1行',
-          `${lines[longIdx].length.toLocaleString()}文字の行があります。圧縮済みか、中身を隠している可能性があります。`, {}));
+          `${lines[longIdx].length.toLocaleString()}文字もある行があります。サイズを小さくしただけのこともありますが、中身を隠している可能性もあります。`, {}));
       }
     }
     // 画面外に追い出した長い空白（横スクロールしないと見えないコード）
     const padIdx = lines.findIndex((l) => /\S[ \t]{150,}\S/.test(l));
     if (padIdx >= 0 && /\.(js|mjs|cjs|ts|py|sh|php|rb|json)$/i.test(path)) {
-      out.push(finding(path, padIdx, lines[padIdx], -1, 'obf-whitespace', 'obf', 'high', '大量の空白の後ろに隠したコード',
-        'エディタの右端の外に追いやって、コードを見えにくくする手口です。', {}));
+      out.push(finding(path, padIdx, lines[padIdx], -1, 'obf-whitespace', 'obf', 'high', '空白で画面の外に押し出したプログラム',
+        '大量の空白を入れて画面の右端より外に追いやり、プログラムを見えにくくする手口です。', {}));
     }
   }
 
@@ -500,8 +500,8 @@
       const m = lines[i].match(/[A-Za-z_][A-Za-z_]*[Ѐ-ӿͰ-Ͽ][A-Za-z_Ѐ-ӿͰ-Ͽ]*|[Ѐ-ӿͰ-Ͽ]+[A-Za-z_]+/);
       if (m) {
         n++;
-        out.push(finding(path, i, lines[i], m.index, 'hidden-homoglyph', 'hidden', 'medium', '英字にそっくりな別の文字（ホモグリフ）',
-          `「${m[0]}」にキリル文字やギリシャ文字が混ざっています。見た目は同じでも別物の名前やURLを作る手口です。`, {}));
+        out.push(finding(path, i, lines[i], m.index, 'hidden-homoglyph', 'hidden', 'medium', '英字にそっくりな別の文字',
+          `「${m[0]}」に、ロシア語やギリシャ語の文字が混ざっています。見た目は同じでも別物の名前やアドレスを作る、なりすましの手口です。`, {}));
       }
     }
   }
@@ -512,11 +512,11 @@
   function detectBinaryKind(bytes) {
     if (!bytes || bytes.length < 4) return null;
     const b = bytes;
-    if (b[0] === 0x4D && b[1] === 0x5A) return 'Windows 実行ファイル (EXE/DLL)';
-    if (b[0] === 0x7F && b[1] === 0x45 && b[2] === 0x4C && b[3] === 0x46) return 'Linux 実行ファイル (ELF)';
+    if (b[0] === 0x4D && b[1] === 0x5A) return 'Windows用 .exe など';
+    if (b[0] === 0x7F && b[1] === 0x45 && b[2] === 0x4C && b[3] === 0x46) return 'Linux用';
     const be = ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0;
-    if ([0xFEEDFACE, 0xFEEDFACF, 0xCEFAEDFE, 0xCFFAEDFE].includes(be)) return 'macOS 実行ファイル (Mach-O)';
-    if (be === 0xCAFEBABE && b[7] < 45) return 'macOS ユニバーサル実行ファイル';
+    if ([0xFEEDFACE, 0xFEEDFACF, 0xCEFAEDFE, 0xCFFAEDFE].includes(be)) return 'Mac用';
+    if (be === 0xCAFEBABE && b[7] < 45) return 'Mac用';
     if (b[0] === 0x23 && b[1] === 0x21) return null; // shebang はテキスト
     return null;
   }
@@ -572,7 +572,7 @@
       for (const f of out) {
         if (f.cat === 'injection' && f.sev !== 'critical') {
           f.sev = SEV[f.sev].rank >= 3 ? 'critical' : 'high';
-          f.desc += '（このファイルはAIエージェントが自動で読み込むため、影響が大きくなります）';
+          f.desc += '（このファイルはAIアシスタントが自動で読み込むため、影響が大きくなります）';
         }
       }
     }
@@ -583,8 +583,8 @@
   function scanBinary(path, bytes) {
     const kind = detectBinaryKind(bytes);
     if (!kind) return [];
-    return [finding(path, -1, '', -1, 'bin-exec', 'code', 'high', `実行ファイル（${kind}）が含まれています`,
-      'ソースコードではなくコンパイル済みのプログラムです。中身を検証できないため、出どころが確かでない限り実行しないでください。', {})];
+    return [finding(path, -1, '', -1, 'bin-exec', 'code', 'high', `アプリ本体（${kind}）が入っています`,
+      'すぐ動かせる形のアプリ本体です。中身を確かめられないので、配っている所が信頼できない限り実行しないでください。', {})];
   }
 
   function summarize(findings) {

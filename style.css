@@ -68,6 +68,7 @@ code { font-family: var(--mono); font-size: .9em; }
 /* header */
 .site-header { padding: 40px 0 24px; }
 .site-header h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: -.01em; }
+.site-header h1 .sub { font-size: 15px; font-weight: 600; color: var(--muted); margin-left: 6px; letter-spacing: 0; }
 .lead { margin: 0 0 12px; color: var(--muted); max-width: 46em; }
 .lead strong { color: var(--text); font-weight: 600; }
 .privacy { display: inline-flex; gap: 8px; align-items: center; margin: 0; padding: 6px 12px; border-radius: 999px; background: var(--safe-bg); color: var(--safe); font-size: 13px; }
@@ -178,6 +179,12 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1
 /* about */
 .about { margin: 48px 0 0; }
 .about h2 { font-size: 18px; margin: 0 0 12px; }
+.about h2 + .why, .why + h2 { margin-top: 0; }
+.why { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 32px; }
+.why p { margin: 0 0 10px; font-size: 14px; color: var(--muted); }
+.why p:last-child { margin-bottom: 0; }
+.why b { color: var(--text); }
+.site-footer a { color: var(--accent); }
 .about h3 { font-size: 15px; margin: 0 0 6px; }
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .about-grid > div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; }

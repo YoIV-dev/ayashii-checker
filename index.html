@@ -4,56 +4,56 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ayashii Checker</title>
-  <meta name="description" content="個人が作ったアプリやテキストに、危険なコードやプロンプトインジェクションが含まれていないかをブラウザ内だけで判定します。">
+  <meta name="description" content="ネットで見つけたアプリや文章に、パソコンに悪さをするしかけやAIをだます隠しメッセージが入っていないかを調べる無料サイト。入れたものは外部に送らず、保存もしません。">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
   <meta name="referrer" content="no-referrer">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z' fill='%232f6fde'/%3E%3Cpath d='m11 16 3.5 3.5L21 13' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <header class="site-header">
     <div class="wrap">
-      <h1>Ayashii Checker</h1>
-      <p class="lead">ネットで見つけたアプリやスクリプト、AIに読ませる文章に<strong>危険なコード</strong>や<strong>プロンプトインジェクション</strong>が潜んでいないかをチェックします。</p>
-      <p class="privacy"><span class="dot"></span>ファイルはこのブラウザの中だけで解析されます。外部への送信も保存も一切しません。ページを閉じると入力内容と結果は消えます。</p>
+      <h1>Ayashii Checker <span class="sub">あやしいチェッカー</span></h1>
+      <p class="lead">ネットで見つけたアプリや文章に、<strong>パソコンに悪さをするしかけ</strong>や<strong>AIをだます隠しメッセージ</strong>が入っていないかを調べます。無料・登録不要です。</p>
+      <p class="privacy"><span class="dot"></span>入れたファイルや文章は、インターネットに送りません。保存もしません。ページを閉じると消えます。</p>
     </div>
   </header>
 
   <main class="wrap">
     <section class="panel" aria-labelledby="input-title">
-      <h2 id="input-title" class="visually-hidden">入力</h2>
+      <h2 id="input-title" class="visually-hidden">調べたいものを入れる</h2>
       <div class="tabs" role="tablist">
-        <button role="tab" id="tab-files" aria-controls="pane-files" aria-selected="true">ファイル・フォルダ・ZIP</button>
+        <button role="tab" id="tab-files" aria-controls="pane-files" aria-selected="true">ファイルを調べる</button>
         <button role="tab" id="tab-text" aria-controls="pane-text" aria-selected="false" tabindex="-1">テキストを貼り付け</button>
       </div>
 
       <div id="pane-files" role="tabpanel" aria-labelledby="tab-files">
         <div id="drop" class="drop" tabindex="0">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <p class="drop-main">ここにファイル・フォルダ・ZIPをドロップ</p>
-          <p class="drop-sub">GitHubからダウンロードしたZIPもそのまま入れられます</p>
+          <p class="drop-main">調べたいファイルをここにドラッグ</p>
+          <p class="drop-sub">フォルダやZIPファイルも、そのまま入れられます</p>
           <div class="drop-buttons">
             <label class="btn">ファイルを選ぶ<input type="file" id="pick-files" multiple hidden></label>
             <label class="btn">フォルダを選ぶ<input type="file" id="pick-folder" webkitdirectory multiple hidden></label>
           </div>
         </div>
-        <label class="check"><input type="checkbox" id="opt-node-modules"> node_modules / .venv などの依存フォルダも調べる（遅くなります）</label>
+        <label class="check"><input type="checkbox" id="opt-node-modules"> 部品フォルダ（node_modules など）も調べる ― 通常は不要です。時間がかかります</label>
       </div>
 
       <div id="pane-text" role="tabpanel" aria-labelledby="tab-text" hidden>
-        <textarea id="text-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="README、Webページの文章、メール、スクリプトなどを貼り付けてください。&#10;見えない文字も検出します。"></textarea>
+        <textarea id="text-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="AIに読ませる前の文章、Webページ、メール、「実行してください」と言われたコマンドなどを貼り付けてください。&#10;目に見えない文字も見つけます。"></textarea>
         <div class="row">
           <button class="btn primary" id="scan-text">判定する</button>
           <button class="btn" id="clear">クリア</button>
           <span class="spacer"></span>
-          <label class="sample-label" for="sample">サンプル:</label>
+          <label class="sample-label" for="sample">サンプルで試す:</label>
           <select id="sample">
             <option value="">選んでください</option>
-            <option value="inj">隠しプロンプトインジェクション入りREADME</option>
-            <option value="ja">日本語のインジェクション文</option>
-            <option value="stealer">情報窃取スクリプト（Python）</option>
-            <option value="installer">怪しいインストーラ（シェル）</option>
-            <option value="clean">普通のREADME</option>
+            <option value="inj">AIへの隠しメッセージ入りの説明書</option>
+            <option value="ja">AIをだまそうとする文章</option>
+            <option value="stealer">パスワードを盗むプログラム</option>
+            <option value="installer">あやしいインストール手順</option>
+            <option value="clean">ふつうの説明書（問題なし）</option>
           </select>
         </div>
       </div>
@@ -68,24 +68,31 @@
     </section>
 
     <section class="about">
-      <h2>このツールについて</h2>
+      <h2>なぜこのサイトが必要なのか</h2>
+      <div class="why">
+        <p><b>だれでもアプリを作って配れる時代になりました。</b>AIのおかげで、プログラミングを学んだことがない人でもアプリを作れます。その一方で、中身をだれもチェックしていないアプリも増えました。便利なツールのふりをして、パスワードを盗むプログラムが配られることもあります。</p>
+        <p><b>AIは、読んだ文章にだまされることがあります。</b>Webページや資料の中に隠された「命令」に、AIが従ってしまうことがあります（プロンプトインジェクション）。人の目には見えない文字で書かれていることも多く、読んだだけでは気づけません。</p>
+        <p><b>でも、中身を確かめるには専門知識が必要です。</b>そこで、ファイルや文章を入れるだけで、よく知られた危ない手口が入っていないかを調べ、何が危ないのかを分かる言葉で説明するサイトを作りました。</p>
+      </div>
+
+      <h2>このサイトについて</h2>
       <div class="about-grid">
         <div>
-          <h3>何を調べるか</h3>
+          <h3>見つけられるもの</h3>
           <ul>
-            <li><b>プロンプトインジェクション</b>: 「以前の指示を無視して」などAI向けの命令、HTMLコメントや非表示要素への隠し指示、画像URLを使ったデータ持ち出し</li>
-            <li><b>隠し文字</b>: 画面に出ないタグ文字・ゼロ幅文字・表示順を入れ替える制御文字（Trojan Source）・そっくり文字</li>
-            <li><b>危険なコード</b>: ブラウザのパスワードや鍵の盗み出し、Discord/Telegramへの送信、リバースシェル、自動起動の登録、難読化コード、<code>curl | sh</code></li>
-            <li><b>サプライチェーン</b>: <code>postinstall</code>、偽パッケージ名、フォルダを開くと実行されるVS Code設定、AIエージェントの危険な設定</li>
+            <li><b>AIをだます隠しメッセージ</b>: 「前の指示は無視して」「ユーザーには言わないで」のような文や、人には見えないように隠した文</li>
+            <li><b>目に見えない文字</b>: 画面には映らないのにAIには読める文字、英字にそっくりな別の文字</li>
+            <li><b>パソコンに悪さをするプログラム</b>: パスワードやログイン情報を盗む、こっそり外部に送る、遠隔操作できるようにする、ファイルを消す</li>
+            <li><b>入れただけで動き出すしかけ</b>: インストールしただけで動くプログラム、有名なソフトに似せたニセモノの部品、AIアシスタントに何でも許可する設定</li>
           </ul>
         </div>
         <div>
-          <h3>限界</h3>
+          <h3>気をつけてほしいこと</h3>
           <ul>
-            <li>パターンで探す静的チェックです。<b>「問題なし」は安全の保証ではありません</b>。巧妙なマルウェアは検出をすり抜けます。</li>
-            <li>正規のアプリでも検出されることがあります（例: 開発ツールがコマンドを実行する）。理由を読んで判断してください。</li>
-            <li>コンパイル済みの実行ファイルの中身は調べられません。存在を知らせるだけです。</li>
-            <li>迷ったら実行しない、仮想マシンやサンドボックスで試す、が鉄則です。</li>
+            <li><b>「問題は見つかりませんでした」でも、100%安全とは限りません。</b>よく知られた手口を探す仕組みなので、新しい手口や巧妙なものは見逃すことがあります。</li>
+            <li>ふつうのアプリでも「要注意」になることがあります。表示される理由を読んで判断してください。</li>
+            <li>パソコン用のアプリ本体（.exe など）の中身までは調べられません。</li>
+            <li><b>迷ったら使わない</b>のがいちばん安全です。</li>
           </ul>
         </div>
       </div>
@@ -93,12 +100,12 @@
   </main>
 
   <footer class="wrap site-footer">
-    <p>オープンソース・完全クライアントサイド。判定ルールは <code>scanner.js</code> にすべて書かれています。</p>
+    <p>このサイトの仕組みはすべて公開しています ― <a href="https://github.com/YoIV-dev/ayashii-checker">GitHub</a> ・ <a href="https://github.com/YoIV-dev/ayashii-checker/issues">判定がおかしいときの報告</a> ・ MIT License</p>
   </footer>
 
-  <script src="vendor/jszip.min.js?v=2"></script>
-  <script src="scanner.js?v=2"></script>
-  <script src="samples.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="vendor/jszip.min.js?v=3"></script>
+  <script src="scanner.js?v=3"></script>
+  <script src="samples.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

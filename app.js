@@ -132,7 +132,7 @@
             queue.push({ path: `${item.path}/${rel}`, zipFile: zf, size: zf._data && zf._data.uncompressedSize });
           });
         } catch (err) {
-          results.push({ path: item.path, findings: [], error: 'ZIPを開けませんでした（破損またはパスワード付き）' });
+          results.push({ path: item.path, findings: [], error: 'ZIPを開けませんでした（壊れているか、パスワード付きです）' });
         }
         continue;
       }
@@ -190,10 +190,10 @@
   let state = { results: [], filter: 'all' };
 
   const VERDICT = {
-    danger: { title: '危険', icon: '!', text: '悪意のあるコードや隠された命令の可能性が高いパターンが見つかりました。実行したり、AIに読ませたりしないでください。' },
-    warn: { title: '要注意', icon: '?', text: '注意が必要な箇所があります。それぞれの理由を読み、作者や配布元が信頼できるか確認してから使ってください。' },
-    info: { title: '軽微な注意点のみ', icon: 'i', text: '大きな問題は見つかりませんでしたが、念のため確認したほうがよい箇所があります。' },
-    safe: { title: '問題は見つかりませんでした', icon: '✓', text: '既知の危険パターンは検出されませんでした。ただし安全の保証ではありません。' },
+    danger: { title: '危険', icon: '!', text: '悪いしかけや、AIをだます隠しメッセージの可能性が高いものが見つかりました。使ったり、AIに読ませたりしないでください。' },
+    warn: { title: '要注意', icon: '?', text: '気になる点があります。下の理由を読んで、作った人や配っている所が信頼できるか確かめてから使ってください。' },
+    info: { title: '軽微な注意点のみ', icon: 'i', text: '大きな問題は見つかりませんでした。念のため、下の気になる点だけ確認してください。' },
+    safe: { title: '問題は見つかりませんでした', icon: '✓', text: 'よく知られた危ないパターンは見つかりませんでした。ただし、100%安全とは限りません。' },
   };
 
   function render(results, stats) {
@@ -203,11 +203,11 @@
 
     const v = VERDICT[sum.level];
     const notes = [];
-    notes.push(`${stats.scanned.toLocaleString()} ファイルを解析`);
-    if (stats.zips) notes.push(`ZIP ${stats.zips} 個を展開`);
-    if (stats.skipped) notes.push(`画像・依存フォルダなど ${stats.skipped.toLocaleString()} 件をスキップ`);
-    if (stats.tooLarge) notes.push(`3MB超のファイル ${stats.tooLarge} 件は未解析`);
-    if (stats.truncated) notes.push(`上限を超えた ${stats.truncated} 件は未解析`);
+    notes.push(`${stats.scanned.toLocaleString()} 個のファイルを調べました`);
+    if (stats.zips) notes.push(`ZIP ${stats.zips} 個を開きました`);
+    if (stats.skipped) notes.push(`画像など調べる必要のない ${stats.skipped.toLocaleString()} 個は飛ばしました`);
+    if (stats.tooLarge) notes.push(`3MBより大きい ${stats.tooLarge} 個は調べていません`);
+    if (stats.truncated) notes.push(`数が多すぎたため ${stats.truncated} 個は調べていません`);
     const skippedDirs = stats.skippedDirs && stats.skippedDirs.size ? [...stats.skippedDirs] : [];
 
     const verdict = $('#verdict');
@@ -219,13 +219,13 @@
           <p class="verdict-label">判定結果</p>
           <h2>${v.title}</h2>
         </div>
-        <div class="verdict-score"><span>${sum.score}</span><small>危険度スコア</small></div>
+        <div class="verdict-score"><span>${sum.score}</span><small>危なさの点数</small></div>
       </div>
       <p class="verdict-text">${v.text}</p>
       <ul class="sev-counts">
         ${SEV_ORDER.map((s) => `<li class="sev-${s}"><b>${sum.bySev[s]}</b> ${Scanner.SEV[s].label}</li>`).join('')}
       </ul>
-      <p class="scan-notes">${notes.map(esc).join(' ・ ')}${skippedDirs.length ? `<br>${esc(skippedDirs.join(', '))} は除外しました（上のチェックで含められます）` : ''}</p>`;
+      <p class="scan-notes">${notes.map(esc).join(' ・ ')}${skippedDirs.length ? `<br>${esc(skippedDirs.join(', '))} （部品フォルダ）は飛ばしました。調べたいときは上のチェックをオンにしてください` : ''}</p>`;
 
     renderFilters();
     renderList();
@@ -257,7 +257,7 @@
       .sort((a, b) => b.max - a.max || b.findings.length - a.findings.length || a.path.localeCompare(b.path));
 
     if (!files.length) {
-      el.innerHTML = state.sum.total ? '' : '<p class="empty">検出された項目はありません。</p>';
+      el.innerHTML = state.sum.total ? '' : '<p class="empty">気になる点は見つかりませんでした。</p>';
       return;
     }
 
