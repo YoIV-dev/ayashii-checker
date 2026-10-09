@@ -44,6 +44,21 @@
     $('#scan-text').click();
   });
 
+  // 入力と結果はメモリ上だけに置き、ページを離れるときに消す。
+  // autocomplete="off" に加えて、ブラウザのフォーム復元や戻る/進むキャッシュにも残さない。
+  function clearAll() {
+    $('#text-input').value = '';
+    $('#sample').value = '';
+    $('#results').hidden = true;
+    $('#verdict').innerHTML = '';
+    $('#filters').innerHTML = '';
+    $('#file-list').innerHTML = '';
+    state = { results: [], filter: 'all' };
+  }
+  $('#clear').addEventListener('click', () => { clearAll(); $('#text-input').focus(); });
+  window.addEventListener('pagehide', clearAll);
+  window.addEventListener('pageshow', (e) => { if (e.persisted) clearAll(); });
+
   // ---------------------------------------------------------------- file input
   const drop = $('#drop');
   ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));

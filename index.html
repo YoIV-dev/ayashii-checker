@@ -15,7 +15,7 @@
     <div class="wrap">
       <h1>Ayashii Checker</h1>
       <p class="lead">ネットで見つけたアプリやスクリプト、AIに読ませる文章に<strong>危険なコード</strong>や<strong>プロンプトインジェクション</strong>が潜んでいないかをチェックします。</p>
-      <p class="privacy"><span class="dot"></span>ファイルはこのブラウザの中だけで解析されます。外部への送信は一切ありません（通信を禁止する設定済み）。</p>
+      <p class="privacy"><span class="dot"></span>ファイルはこのブラウザの中だけで解析されます。外部への送信も保存も一切しません。ページを閉じると入力内容と結果は消えます。</p>
     </div>
   </header>
 
@@ -41,9 +41,10 @@
       </div>
 
       <div id="pane-text" role="tabpanel" aria-labelledby="tab-text" hidden>
-        <textarea id="text-input" spellcheck="false" placeholder="README、Webページの文章、メール、スクリプトなどを貼り付けてください。&#10;見えない文字も検出します。"></textarea>
+        <textarea id="text-input" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="README、Webページの文章、メール、スクリプトなどを貼り付けてください。&#10;見えない文字も検出します。"></textarea>
         <div class="row">
           <button class="btn primary" id="scan-text">判定する</button>
+          <button class="btn" id="clear">クリア</button>
           <span class="spacer"></span>
           <label class="sample-label" for="sample">サンプル:</label>
           <select id="sample">
